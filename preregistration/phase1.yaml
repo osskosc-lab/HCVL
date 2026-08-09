@@ -1,0 +1,99 @@
+{
+  "study": {
+    "name": "HCVL Phase 1",
+    "full_name": "History-Conditioned Value Learning",
+    "version": "1.0.0",
+    "status": "frozen",
+    "question": "Does low-dimensional history improve prediction of future intervention value after matching the current observable state?"
+  },
+  "design": {
+    "generators": [
+      "null0_markov",
+      "positive1_delay",
+      "positive2_order"
+    ],
+    "seeds": 30,
+    "train_episodes_per_seed": 800,
+    "test_pairs_per_seed": 250,
+    "history_length": 12,
+    "value_horizon": 6,
+    "discount": 0.9,
+    "value_noise_sd": 0.05,
+    "state_match_epsilon": 0.75,
+    "train_probe_range": [
+      -1.0,
+      1.0
+    ],
+    "ood_probe_actions": [
+      -1.5,
+      1.5
+    ],
+    "decision_actions": [
+      -1.5,
+      0.0,
+      1.5
+    ],
+    "history_representation": {
+      "type": "low_dimensional",
+      "lagged_observations": [
+        1,
+        2,
+        3
+      ],
+      "exponential_action_decays": [
+        0.35,
+        0.82
+      ]
+    }
+  },
+  "generator_parameters": {
+    "a": 0.65,
+    "b": 0.15,
+    "c": 0.28,
+    "eta": 1.0,
+    "tau": 3,
+    "memory_decays": [
+      0.35,
+      0.82
+    ],
+    "history_actions": {
+      "A": 1.0,
+      "B": -0.6
+    }
+  },
+  "models": {
+    "state_only": "ridge",
+    "hcvl": "ridge_with_low_dimensional_history_and_probe_interactions",
+    "history_shuffle": "same_hcvl_features_with_history_rows_permuted_in_training",
+    "ridge_lambda": 0.1
+  },
+  "primary_metrics": {
+    "ood_value_rmse_ratio": "RMSE(HCVL)/RMSE(state-only)",
+    "shuffle_ratio": "RMSE(history-shuffle)/RMSE(HCVL)",
+    "matched_pair_retention": "retained AB/BA pairs / generated pairs"
+  },
+  "secondary_metrics": {
+    "decision_regret_state": "mean oracle-value regret after state-only action selection",
+    "decision_regret_hcvl": "mean oracle-value regret after HCVL action selection"
+  },
+  "falsification_gates": {
+    "null0_no_spurious_advantage": {
+      "rmse_ratio_min": 0.95
+    },
+    "positive1_history_value": {
+      "rmse_ratio_max": 0.9,
+      "shuffle_ratio_min": 1.1
+    },
+    "positive2_history_value": {
+      "rmse_ratio_max": 0.9,
+      "shuffle_ratio_min": 1.1
+    },
+    "state_matching": {
+      "retention_min": 0.8
+    },
+    "decision_regret": {
+      "positive_mean_regret_ratio_max": 0.9
+    }
+  },
+  "decision_rule": "SUPPORT only if every preregistered gate passes; otherwise FALSIFIED_OR_INCONCLUSIVE."
+}

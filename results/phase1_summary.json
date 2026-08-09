@@ -1,0 +1,46 @@
+{
+  "null0_markov": {
+    "rmse_state": 0.050464981754552184,
+    "rmse_hcvl": 0.05109307674246323,
+    "rmse_shuffle": 0.05113322973789807,
+    "rmse_ratio": 1.0123957183299441,
+    "shuffle_ratio": 1.0012232744363119,
+    "match_retention": 1.0,
+    "regret_state": 0.0,
+    "regret_hcvl": 0.0,
+    "regret_ratio": 1.0
+  },
+  "positive1_delay": {
+    "rmse_state": 0.7312912111060182,
+    "rmse_hcvl": 0.05260701817993641,
+    "rmse_shuffle": 0.7369135563926419,
+    "rmse_ratio": 0.07197346461464048,
+    "shuffle_ratio": 14.03990770247498,
+    "match_retention": 1.0,
+    "regret_state": 0.12156163839789251,
+    "regret_hcvl": 5.0256028787319494e-05,
+    "regret_ratio": 0.0004475026289337853
+  },
+  "positive2_order": {
+    "rmse_state": 0.8934628143678022,
+    "rmse_hcvl": 0.05114113200780548,
+    "rmse_shuffle": 0.8811552345267034,
+    "rmse_ratio": 0.05749230261977702,
+    "shuffle_ratio": 17.251547049522266,
+    "match_retention": 1.0,
+    "regret_state": 0.06768956157656443,
+    "regret_hcvl": 2.6367892562046375e-06,
+    "regret_ratio": 4.0607268113310964e-05
+  },
+  "positive_mean_regret_ratio": 0.00024405494852354815,
+  "gates": {
+    "null0_no_spurious_advantage": true,
+    "positive1_rmse": true,
+    "positive1_shuffle": true,
+    "positive2_rmse": true,
+    "positive2_shuffle": true,
+    "state_matching": true,
+    "decision_regret": true
+  },
+  "decision": "SUPPORT"
+}
