@@ -1,0 +1,6 @@
+{
+  "file": "preregistration/phase1c.yaml",
+  "sha256": "0bebff6bec0405cbb6694ebc4b79d42570c44c4531c1bf23460997bd9206c886",
+  "frozen_at": "2026-08-09T22:31:00+09:00",
+  "rule": "Any change to phase1c.yaml invalidates the frozen Phase 1C confirmatory run."
+}

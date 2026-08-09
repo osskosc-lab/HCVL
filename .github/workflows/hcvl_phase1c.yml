@@ -1,0 +1,64 @@
+name: HCVL Phase 1C Representation-Independent Falsification
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  phase1c:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install
+        run: python -m pip install --upgrade pip numpy pytest
+      - name: Verify Phase 1C frozen preregistration
+        run: python scripts/verify_phase1c.py
+      - name: Unit tests
+        run: python -m pytest -q
+      - name: Run Phase 1C confirmatory experiment
+        shell: bash
+        run: |
+          set +e
+          python run_phase1c.py
+          code=$?
+          set -e
+
+          # Exit code 2 is the preregistered scientific outcome for a completed
+          # run whose frozen gates do not all pass. It is not a CI/infrastructure
+          # failure. Preserve the falsification result while keeping CI green.
+          if [ "$code" -eq 0 ]; then
+            echo "Phase 1C completed with SUPPORT."
+          elif [ "$code" -eq 2 ]; then
+            echo "::notice::Phase 1C completed with FALSIFIED_OR_INCONCLUSIVE; frozen gate failure is a scientific result, not a CI failure."
+          else
+            echo "::error::Phase 1C runner failed unexpectedly with exit code $code."
+            exit "$code"
+          fi
+      - name: Validate Phase 1C result artifact
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = Path("results/phase1c_summary.json")
+          if not p.exists():
+              raise SystemExit("missing results/phase1c_summary.json")
+          d = json.loads(p.read_text())
+          if d.get("decision") not in {"SUPPORT", "FALSIFIED_OR_INCONCLUSIVE"}:
+              raise SystemExit(f"invalid decision: {d.get('decision')!r}")
+          if "gates" not in d or "failed_gates" not in d:
+              raise SystemExit("summary missing gate fields")
+          print("Validated Phase 1C decision:", d["decision"])
+          print("Failed frozen gates:", d["failed_gates"])
+          PY
+      - name: Upload Phase 1C results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hcvl-phase1c-results
+          path: |
+            results/phase1c_seed_results.csv
+            results/phase1c_summary.json

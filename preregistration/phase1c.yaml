@@ -1,0 +1,48 @@
+{
+  "study": {
+    "name": "HCVL Phase 1C",
+    "version": "1.0.0",
+    "status": "frozen",
+    "question": "Can learned history representations predict held-out intervention value beyond a capacity-matched state-only model without hand-designed history features?"
+  },
+  "design": {
+    "seeds": 20,
+    "train_episodes_per_seed": 600,
+    "test_pairs_per_seed": 180,
+    "history_length": 12,
+    "state_match_epsilon": 0.25,
+    "train_probe_range": [
+      -1.0,
+      1.0
+    ],
+    "test_probe_actions": [
+      -1.8,
+      1.8
+    ],
+    "train_mechanism": "single_pulse",
+    "test_mechanism": "two_pulse",
+    "generators": [
+      "null_markov",
+      "adversarial_delay",
+      "adversarial_switching"
+    ],
+    "value_horizon": 6,
+    "discount": 0.9,
+    "noise_sd": 0.05
+  },
+  "models": {
+    "state_only": "capacity_matched_polynomial_ridge",
+    "psr": "learned predictive-state SVD encoder + ridge value head",
+    "rnn": "learned Elman recurrent encoder trained by BPTT",
+    "history_shuffle": "PSR/RNN training histories permuted"
+  },
+  "gates": {
+    "null_learned_no_spurious_gain_min": 0.95,
+    "positive_best_to_state_max": 0.85,
+    "positive_both_to_state_max": 0.95,
+    "positive_shuffle_ratio_min": 1.25,
+    "strict_match_retention_min": 0.7,
+    "heldout_mechanism_positive_max": 0.9
+  },
+  "decision_rule": "SUPPORT only if all frozen gates pass; otherwise FALSIFIED_OR_INCONCLUSIVE."
+}
