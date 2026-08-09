@@ -19,7 +19,7 @@ jobs:
       - name: Verify frozen preregistration
         run: python scripts/verify_phase1.py
       - name: Unit tests
-        run: pytest -q
+        run: python -m pytest -q
       - name: Run Phase 1 confirmatory experiment
         run: python run_phase1.py
       - name: Upload results
