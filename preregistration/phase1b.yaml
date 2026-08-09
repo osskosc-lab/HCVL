@@ -1,0 +1,85 @@
+{
+  "study": {
+    "name": "HCVL Phase 1B",
+    "full_name": "Robust Falsification of History-Conditioned Value Learning",
+    "version": "1.0.0",
+    "status": "frozen",
+    "question": "Does HCVL retain OOD intervention-value advantage when history features are misspecified, the state-only baseline is capacity-matched and nonlinear, state matching is stricter, and the positive generator family is unseen?"
+  },
+  "design": {
+    "generators": [
+      "null0_markov",
+      "positive1_delay",
+      "positive2_order",
+      "positive3_unseen"
+    ],
+    "seeds": 30,
+    "train_episodes_per_seed": 800,
+    "test_pairs_per_seed": 250,
+    "history_length": 12,
+    "value_horizon": 6,
+    "discount": 0.9,
+    "value_noise_sd": 0.05,
+    "state_match_epsilon": 0.35,
+    "train_probe_range": [
+      -1.0,
+      1.0
+    ],
+    "ood_probe_actions": [
+      -1.5,
+      1.5
+    ],
+    "pair_action_jitter_sd": 0.12
+  },
+  "models": {
+    "state_only_linear": "Phase 1 ridge baseline",
+    "state_only_nonlinear": "capacity-matched polynomial ridge using observable state and probe only",
+    "hcvl_full": "Phase 1 low-dimensional history representation",
+    "hcvl_misspecified": "wrong sparse lags plus a single wrong exponential decay",
+    "history_shuffle": "full HCVL with history rows permuted in training",
+    "ridge_lambda": 0.1
+  },
+  "unseen_generator": {
+    "name": "positive3_unseen",
+    "training_exposure": "none during Phase 1 design",
+    "memory_decays": [
+      0.17,
+      0.63
+    ],
+    "nonlinearity": "tanh",
+    "probe_history_coupling": 0.85
+  },
+  "primary_metrics": {
+    "hcvl_to_state_ratio": "RMSE(HCVL-full)/RMSE(state-only linear)",
+    "hcvl_to_nonlinear_ratio": "RMSE(HCVL-full)/RMSE(state-only nonlinear)",
+    "misspecified_to_nonlinear_ratio": "RMSE(HCVL-misspecified)/RMSE(state-only nonlinear)",
+    "shuffle_ratio": "RMSE(history-shuffle)/RMSE(HCVL-full)",
+    "misspec_degradation": "RMSE(HCVL-misspecified)/RMSE(HCVL-full)",
+    "matched_pair_retention": "retained pairs / generated pairs"
+  },
+  "falsification_gates": {
+    "null_no_spurious_history_gain": {
+      "hcvl_to_state_ratio_min": 0.95
+    },
+    "known_positive_vs_nonlinear": {
+      "mean_hcvl_to_nonlinear_ratio_max": 0.9
+    },
+    "misspec_robustness": {
+      "max_misspecified_to_nonlinear_ratio": 0.85
+    },
+    "history_specificity": {
+      "min_shuffle_ratio": 1.2
+    },
+    "feature_alignment_stress": {
+      "min_misspec_degradation": 2.0
+    },
+    "strict_state_matching": {
+      "min_retention": 0.85
+    },
+    "unseen_family_generalization": {
+      "hcvl_to_nonlinear_ratio_max": 0.9,
+      "shuffle_ratio_min": 1.2
+    }
+  },
+  "decision_rule": "SUPPORT only if every Phase 1B gate passes. Failure of any gate yields FALSIFIED_OR_INCONCLUSIVE and the failing gate is named."
+}
