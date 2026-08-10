@@ -1,0 +1,46 @@
+{
+  "study": {
+    "name": "HCVL Phase 1D",
+    "version": "1.0.0",
+    "status": "frozen",
+    "question": "After exactly pairing architecture, value head, regularization, parameter count, and encoder basis, does raw history provide held-out intervention-value information beyond history-free controls?"
+  },
+  "design": {
+    "seeds": 20,
+    "train_episodes_per_seed": 600,
+    "test_pairs_per_seed": 180,
+    "history_length": 12,
+    "state_match_epsilon": 0.25,
+    "train_probe_range": [-1.0, 1.0],
+    "test_probe_actions": [-1.8, 1.8],
+    "train_mechanism": "single_pulse",
+    "test_mechanism": "two_pulse",
+    "generators": ["null_markov", "adversarial_delay", "adversarial_switching"],
+    "value_horizon": 6,
+    "discount": 0.9,
+    "noise_sd": 0.05
+  },
+  "paired_architecture": {
+    "encoder": "single predictive cross-covariance SVD basis learned once from raw training histories per generator/seed and reused unchanged for every history control",
+    "latent_dim": 4,
+    "value_head": "identical nonlinear paired ridge head for raw/order-preserving/order-destroying/constant histories",
+    "ridge_lambda": 0.1,
+    "controls": {
+      "raw_history": "unaltered state-action history",
+      "order_preserving": "history rows permuted across episodes while preserving within-history temporal order",
+      "order_destroying": "state-action time pairs permuted within each episode",
+      "constant_history": "training mean history, yielding zero centered latent; operational state-only control"
+    }
+  },
+  "gates": {
+    "null_raw_to_constant_min": 0.95,
+    "null_raw_to_constant_max": 1.05,
+    "positive_raw_to_constant_max": 0.85,
+    "positive_order_destroying_to_raw_min": 1.15,
+    "positive_order_preserving_to_raw_min": 1.10,
+    "strict_match_retention_min": 0.70,
+    "heldout_mechanism_positive_mean_max": 0.90,
+    "paired_feature_dim_equal": true
+  },
+  "decision_rule": "SUPPORT only if all frozen gates pass; otherwise FALSIFIED_OR_INCONCLUSIVE."
+}
